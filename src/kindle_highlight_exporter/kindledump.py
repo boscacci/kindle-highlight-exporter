@@ -1,10 +1,9 @@
 """
-This is a skeleton file that can serve as a starting point for a Python
-console script. To run this script uncomment the following lines in the
+To run this script uncomment the following lines in the
 ``[options.entry_points]`` section in ``setup.cfg``::
 
     console_scripts =
-         fibonacci = kindle_highlight_exporter.skeleton:run
+         kindledump = kindle_highlight_exporter.kindledump:run
 
 Then run ``pip install .`` (or ``pip install -e .`` for editable mode)
 which will install the command ``fibonacci`` inside your current environment.
@@ -36,25 +35,11 @@ _logger = logging.getLogger(__name__)
 # ---- Python API ----
 # The functions defined in this section can be imported by users in their
 # Python scripts/interactive interpreter, e.g. via
-# `from kindle_highlight_exporter.skeleton import fib`,
+# `from kindle_highlight_exporter.kindledump import import_kindle_textfile`,
 # when using this Python module as a library.
 
-
-def fib(n):
-    """Fibonacci example function
-
-    Args:
-      n (int): integer
-
-    Returns:
-      int: n-th Fibonacci number
-    """
-    assert n > 0
-    a, b = 1, 1
-    for _i in range(n - 1):
-        a, b = b, a + b
-    return a
-
+from kindle_highlight_exporter.subroutines import import_kindle_textfile
+from kindle_highlight_exporter.subroutines import get_clippings_by_author
 
 # ---- CLI ----
 # The functions defined in this section are wrappers around the main Python
@@ -72,13 +57,28 @@ def parse_args(args):
     Returns:
       :obj:`argparse.Namespace`: command line parameters namespace
     """
-    parser = argparse.ArgumentParser(description="Just a Fibonacci demonstration")
+    parser = argparse.ArgumentParser(
+        description="Dump kindle data in a nice format"
+    )
     parser.add_argument(
         "--version",
         action="version",
         version="kindle-highlight-exporter {ver}".format(ver=__version__),
     )
-    parser.add_argument(dest="n", help="n-th Fibonacci number", type=int, metavar="INT")
+    parser.add_argument(
+        dest="clippings_path",
+        help="path of clippings file",
+        type=str,
+        metavar="CLIPPINGS_PATH",
+        # required=True,
+    )
+    parser.add_argument(
+        "--author",
+        dest="author",
+        help="author name",
+        type=str,
+        metavar="AUTHOR",
+    )
     parser.add_argument(
         "-v",
         "--verbose",
@@ -106,24 +106,36 @@ def setup_logging(loglevel):
     """
     logformat = "[%(asctime)s] %(levelname)s:%(name)s:%(message)s"
     logging.basicConfig(
-        level=loglevel, stream=sys.stdout, format=logformat, datefmt="%Y-%m-%d %H:%M:%S"
+        level=loglevel,
+        stream=sys.stdout,
+        format=logformat,
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
 
 
 def main(args):
-    """Wrapper allowing :func:`fib` to be called with string arguments in a CLI fashion
+    """Wrapper allowing :func:`kindledump` to be called with string arguments in a CLI fashion
 
-    Instead of returning the value from :func:`fib`, it prints the result to the
-    ``stdout`` in a nicely formatted message.
+    Instead of returning the value from :func:`kindledump`, it prints the result to the
+    ``stdout`` in a nicely formatted message, or saves to a file.
 
     Args:
       args (List[str]): command line parameters as list of strings
-          (for example  ``["--verbose", "42"]``).
+          (for example  ``["--author", "John Carreyrou"]``).
     """
     args = parse_args(args)
     setup_logging(args.loglevel)
-    _logger.debug("Starting crazy calculations...")
-    print("The {}-th Fibonacci number is {}".format(args.n, fib(args.n)))
+    _logger.debug("Starting kindle dump")
+    args_dict = vars(args)
+    clippings_path = import_kindle_textfile(args_dict["clippings_path"])
+    if "author" in args_dict:
+        authors = args_dict["author"]
+        print(f"Getting {authors} clips:")
+        author_clips = get_clippings_by_author(
+            clippings_path,
+            only_these_authors=authors,
+        )
+        print([(clip, "\n") for clip in author_clips])
     _logger.info("Script ends here")
 
 

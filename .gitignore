@@ -1,3 +1,6 @@
+# Test data
+tests/test_data/
+
 # Temporary and binary files
 *~
 *.py[cod]
