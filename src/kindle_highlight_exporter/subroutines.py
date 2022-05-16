@@ -84,17 +84,31 @@ def get_clippings_by_author(
     only_these_authors=None,
     exclude_these_authors=None,
 ):
+    return get_clippings_by_field(
+        clip_dicts,
+        field="author",
+        only_these=only_these_authors,
+        exclude_these=exclude_these_authors,
+    )
+
+
+def get_clippings_by_field(
+    clip_dicts,
+    field,
+    only_these=None,
+    exclude_these=None,
+):
     """
-    Given an author name, find relevant clips
+    Given a filter field, find relevant clips
 
     Parameters
     ----------
     clip_dicts : list
         clip dicts to search thru
-    only_these_authors : str or list[str], optional
-        Which author(s) we want clips for, by default None
-    exclude_these_authors : str or list[str], optional
-        Which author(s) to exclude from results, by default None
+    only_these : str or list[str], optional
+        Which things we want clips for, by default None
+    exclude_these : str or list[str], optional
+        Which things to exclude from results, by default None
 
     Returns
     -------
@@ -102,16 +116,12 @@ def get_clippings_by_author(
         list of clippings that match criteria
     """
     # Inclusive approach
-    if only_these_authors:
-        clip_dicts = [
-            clip for clip in clip_dicts if clip["author"] in only_these_authors
-        ]
+    if only_these:
+        clip_dicts = [clip for clip in clip_dicts if clip[field] in only_these]
 
     # Exclusive approach
-    if exclude_these_authors:
+    if exclude_these:
         clip_dicts = [
-            clip
-            for clip in clip_dicts
-            if clip["author"] not in exclude_these_authors
+            clip for clip in clip_dicts if clip[field] not in exclude_these
         ]
     return clip_dicts
