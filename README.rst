@@ -36,9 +36,8 @@ kindle-highlight-exporter
 
 
 * I wanted to be able to export highlights I made while reading to a neat google doc or comparable.
-* Amazon has something that [lets you save highlights from certain books](https://www.howtogeek.com/449256/how-to-backup-your-kindle-highlights-and-notes/), but not DRM-free books. (Almost none of the books on my kindle are DRM protected)
-* There's already a [tiny web app which accomplishes the same thing](https://erkanerol.github.io/kindle-clippings-extractor/), but the UI and resulting text output are not as neat as I would like.
-
+* Amazon has something that `lets you save highlights from certain books <https://www.howtogeek.com/449256/how-to-backup-your-kindle-highlights-and-notes/>`_, but not DRM-free books. (Almost none of the books on my kindle are DRM protected)
+* There's already a `tiny web app which accomplishes the same thing <https://erkanerol.github.io/kindle-clippings-extractor/>`_, but the UI and resulting text output are not as neat as I would like.
 
 
 .. _pyscaffold-notes:
