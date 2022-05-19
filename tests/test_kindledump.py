@@ -3,6 +3,8 @@ import pytest
 from kindle_highlight_exporter.kindledump import main
 from kindle_highlight_exporter.kindledump import import_kindle_textfile
 from kindle_highlight_exporter.kindledump import get_clippings_by_author
+from kindle_highlight_exporter.kindledump import get_clippings_by_title
+from kindle_highlight_exporter.subroutines import fuzzy_matches
 
 __author__ = "boscacci"
 __copyright__ = "boscacci"
@@ -18,10 +20,30 @@ def test_import_kindle_textfile():
     assert len(clippings_list) > 0
 
 
+def test_fuzzy_matches():
+    assert (
+        fuzzy_matches(
+            input_value_to_check=clippings_list[0]["author"],
+            list_to_check=["carreyrou john"],
+        )
+        == True
+    )
+
+
+def test_get_clippings_by_title():
+    clippings_that_matter = get_clippings_by_title(
+        clippings_list,
+        only_these=[
+            "something that matters",
+        ],
+    )
+    assert len(clippings_that_matter) == 174
+
+
 def test_get_clippings_by_author():
     carreyrou_clippings = get_clippings_by_author(
         clippings_list,
-        only_these_authors=[
+        only_these=[
             "John Carreyrou",
         ],
     )
@@ -31,7 +53,7 @@ def test_get_clippings_by_author():
 def test_get_clippings_by_not_author():
     not_carreyrou_clippings = get_clippings_by_author(
         clippings_list,
-        exclude_these_authors=[
+        exclude_these=[
             "John Carreyrou",
         ],
     )

@@ -40,6 +40,7 @@ _logger = logging.getLogger(__name__)
 
 from kindle_highlight_exporter.subroutines import import_kindle_textfile
 from kindle_highlight_exporter.subroutines import get_clippings_by_author
+from kindle_highlight_exporter.subroutines import get_clippings_by_title
 
 # ---- CLI ----
 # The functions defined in this section are wrappers around the main Python
@@ -78,6 +79,13 @@ def parse_args(args):
         help="author name",
         type=str,
         metavar="AUTHOR",
+    )
+    parser.add_argument(
+        "--titles",
+        dest="titles",
+        help="titles of books",
+        type=str,
+        metavar="TITLES",
     )
     parser.add_argument(
         "-v",
@@ -127,15 +135,29 @@ def main(args):
     setup_logging(args.loglevel)
     _logger.debug("Starting kindle dump")
     args_dict = vars(args)
-    clippings_path = import_kindle_textfile(args_dict["clippings_path"])
-    if "author" in args_dict:
+    clip_dicts = import_kindle_textfile(args_dict["clippings_path"])
+
+    if args_dict.get("authors") and args_dict.get("titles"):
+        # ! TODO
+        # breakpoint()
+        print("Haven't coded this capability yet.")
+
+    elif args_dict.get("author"):
         authors = args_dict["author"]
-        print(f"Getting {authors} clips:")
         author_clips = get_clippings_by_author(
-            clippings_path,
-            only_these_authors=authors,
+            clip_dicts=clip_dicts,
+            only_these=authors,
         )
         print([(clip, "\n") for clip in author_clips])
+
+    elif args_dict.get("titles"):
+        titles = args_dict["titles"]
+        title_clips = get_clippings_by_title(
+            clip_dicts=clip_dicts,
+            only_these=titles,
+        )
+        print([(clip, "\n") for clip in title_clips])
+
     _logger.info("Script ends here")
 
 

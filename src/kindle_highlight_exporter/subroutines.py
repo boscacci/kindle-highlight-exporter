@@ -1,3 +1,6 @@
+from thefuzz import fuzz
+
+
 def get_loc_values(loc_str):
     if "-" in loc_str:
         start = loc_str.split("-")[0]
@@ -81,14 +84,27 @@ def import_kindle_textfile(file_loc):
 
 def get_clippings_by_author(
     clip_dicts,
-    only_these_authors=None,
-    exclude_these_authors=None,
+    only_these=None,
+    exclude_these=None,
 ):
     return get_clippings_by_field(
         clip_dicts,
         field="author",
-        only_these=only_these_authors,
-        exclude_these=exclude_these_authors,
+        only_these=only_these,
+        exclude_these=exclude_these,
+    )
+
+
+def get_clippings_by_title(
+    clip_dicts,
+    only_these=None,
+    exclude_these=None,
+):
+    return get_clippings_by_field(
+        clip_dicts,
+        field="source_title",
+        only_these=only_these,
+        exclude_these=exclude_these,
     )
 
 
@@ -117,7 +133,11 @@ def get_clippings_by_field(
     """
     # Inclusive approach
     if only_these:
-        clip_dicts = [clip for clip in clip_dicts if clip[field] in only_these]
+        clip_dicts = [
+            clip
+            for clip in clip_dicts
+            if fuzzy_matches(clip[field], only_these)
+        ]
 
     # Exclusive approach
     if exclude_these:
@@ -125,3 +145,11 @@ def get_clippings_by_field(
             clip for clip in clip_dicts if clip[field] not in exclude_these
         ]
     return clip_dicts
+
+
+def fuzzy_matches(input_value_to_check, list_to_check):
+    score = fuzz.token_sort_ratio(input_value_to_check, list_to_check)
+    if score > 80:
+        return True
+    else:
+        return False
