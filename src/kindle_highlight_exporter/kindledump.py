@@ -22,6 +22,7 @@ References:
 import argparse
 import logging
 import sys
+import json
 
 from kindle_highlight_exporter import __version__
 
@@ -30,7 +31,6 @@ __copyright__ = "boscacci"
 __license__ = "MIT"
 
 _logger = logging.getLogger(__name__)
-
 
 # ---- Python API ----
 # The functions defined in this section can be imported by users in their
@@ -71,20 +71,21 @@ def parse_args(args):
         help="path of clippings file",
         type=str,
         metavar="CLIPPINGS_PATH",
-        # required=True,
     )
     parser.add_argument(
         "--author",
-        dest="author",
-        help="author name",
+        dest="authors",
+        help="author names",
+        nargs="+",
         type=str,
-        metavar="AUTHOR",
+        metavar="AUTHORS",
     )
     parser.add_argument(
-        "--titles",
+        "--title",
         dest="titles",
         help="titles of books",
         type=str,
+        nargs="+",
         metavar="TITLES",
     )
     parser.add_argument(
@@ -139,16 +140,16 @@ def main(args):
 
     if args_dict.get("authors") and args_dict.get("titles"):
         # ! TODO
-        # breakpoint()
         print("Haven't coded this capability yet.")
 
-    elif args_dict.get("author"):
-        authors = args_dict["author"]
+    elif args_dict.get("authors"):
+        authors = args_dict["authors"]
         author_clips = get_clippings_by_author(
             clip_dicts=clip_dicts,
             only_these=authors,
         )
-        print([(clip, "\n") for clip in author_clips])
+        authors_output_json = json.dumps(author_clips)
+        print(authors_output_json)
 
     elif args_dict.get("titles"):
         titles = args_dict["titles"]
@@ -156,7 +157,23 @@ def main(args):
             clip_dicts=clip_dicts,
             only_these=titles,
         )
-        print([(clip, "\n") for clip in title_clips])
+        with open("tests/output_test.json", "w") as jfile:
+            json.dump({"data": title_clips}, jfile)
+
+    else:
+        print(
+            "\nYou didn't enter any search items (with e.g. --author "
+            "or --title). Here's what's available:\n"
+        )
+        authors_titles = {(c["author"], c["source_title"]) for c in clip_dicts}
+        author_title_dicts = [
+            {"author": a_t[0], "title": a_t[1]} for a_t in authors_titles
+        ]
+        for a_t_dict in author_title_dicts:
+            print(
+                f"Author: {a_t_dict['author']}\n"
+                f"Title: {a_t_dict['title']}\n\n"
+            )
 
     _logger.info("Script ends here")
 

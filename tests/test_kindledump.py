@@ -23,8 +23,8 @@ def test_import_kindle_textfile():
 def test_fuzzy_matches():
     assert (
         fuzzy_matches(
-            input_value_to_check=clippings_list[0]["author"],
-            list_to_check=["carreyrou john"],
+            value_from_clip=clippings_list[0]["author"],
+            valid_values_list=["carreyrou john"],
         )
         == True
     )
@@ -38,6 +38,12 @@ def test_get_clippings_by_title():
         ],
     )
     assert len(clippings_that_matter) == 174
+
+    hemingway_clips = get_clippings_by_title(
+        clippings_list, only_these=["a farewell to arms"]
+    )
+
+    assert len(hemingway_clips) == 3
 
 
 def test_get_clippings_by_author():
@@ -61,7 +67,7 @@ def test_get_clippings_by_not_author():
     assert "being large" in not_carreyrou_clippings[-2]["highlight_text"]
 
 
-def test_main(capsys):
+def test_search_by_author_cli(capsys):
     """CLI Tests"""
     # capsys is a pytest fixture that allows asserts agains stdout/stderr
     # https://docs.pytest.org/en/stable/capture.html
@@ -75,5 +81,20 @@ def test_main(capsys):
     captured = capsys.readouterr()
     assert (
         "firewall between the Journal’s editorial and newsroom staffs"
+        in captured.out
+    )
+
+
+def test_search_by_title_cli(capsys):
+    main(
+        [
+            file_loc,
+            "--title",
+            "something that matters",
+        ]
+    )
+    captured = capsys.readouterr()
+    assert (
+        "everyone reading this book has the potential to make a difference"
         in captured.out
     )

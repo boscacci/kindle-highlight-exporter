@@ -147,9 +147,11 @@ def get_clippings_by_field(
     return clip_dicts
 
 
-def fuzzy_matches(input_value_to_check, list_to_check):
-    score = fuzz.token_sort_ratio(input_value_to_check, list_to_check)
-    if score > 80:
+def fuzzy_matches(value_from_clip, valid_values_list):
+    scores = [
+        fuzz.token_sort_ratio(value_from_clip, valid)
+        for valid in valid_values_list
+    ]
+    if any([score > 75 for score in scores]):
         return True
-    else:
-        return False
+    return False
